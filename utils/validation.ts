@@ -1,6 +1,6 @@
  // utils/validation.ts
+import { CustomerData, FormErrors } from '@/components/types';
 import { VALIDATION_MESSAGES, VALIDATION_PATTERNS } from '@/constants';
-import { CustomerData, FormErrors } from '@/types';
 import { CustomerDB } from './CustomerDB';
 
 export const validateCustomerData = (customerData: CustomerData): FormErrors => {
