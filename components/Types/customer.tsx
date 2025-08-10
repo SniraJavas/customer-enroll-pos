@@ -21,6 +21,7 @@ export interface CustomerData {
   phone: string;
   email: string;
   dateOfBirth: string;
+  faceDataQuality : number;
   acceptTerms: boolean;
   marketing: boolean;
 }

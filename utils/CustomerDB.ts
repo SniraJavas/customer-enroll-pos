@@ -9,13 +9,13 @@ export class CustomerDB {
     return JSON.parse(localStorage.getItem(this.STORAGE_KEY) || '[]');
   }
   
-  static addCustomer(customerData: CustomerData & { retryCount: number }): Customer {
+  static addCustomer(customerData: CustomerData & { faceDataQuality: number ; retryCount: number }): Customer {
     const customers = this.getCustomers();
     const newCustomer: Customer = {
       id: `CUST_${Date.now()}`,
       enrolledAt: new Date().toISOString(),
       status: 'pending_verification',
-      faceDataQuality: Math.floor(Math.random() * 20) + 80, // 80-100%
+      //faceDataQuality: Math.floor(Math.random() * 20) + 80, // 80-100%
       ...customerData
     };
     
