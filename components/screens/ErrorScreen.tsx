@@ -1,5 +1,6 @@
- import { AlertCircle, ArrowLeft, Home, RefreshCw } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Home, RefreshCw } from 'lucide-react-native';
 import React from 'react';
+import { Animated, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface ErrorScreenProps {
   setCurrentScreen: (screen: string) => void;
@@ -20,6 +21,27 @@ const ErrorScreen: React.FC<ErrorScreenProps> = ({
   retryCount = 0,
   maxRetries = 3
 }) => {
+  const pulseAnim = new Animated.Value(1);
+
+  React.useEffect(() => {
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.2,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    pulse.start();
+    return () => pulse.stop();
+  }, []);
+
   const handleRetry = () => {
     if (onRetry && retryCount < maxRetries) {
       onRetry();
@@ -53,100 +75,255 @@ const ErrorScreen: React.FC<ErrorScreenProps> = ({
   const isMaxRetriesReached = retryCount >= maxRetries;
 
   return (
-    <div className="flex flex-col h-screen bg-gray-900 text-white">
+    <View style={styles.container}>
       {/* Header */}
-      <div className="flex items-center justify-between p-6 mt-8">
-        <button 
-          onClick={() => setCurrentScreen('welcome')} 
-          className="p-2 hover:bg-gray-800 rounded-full transition-colors"
+      <View style={styles.header}>
+        <TouchableOpacity 
+          onPress={() => setCurrentScreen('welcome')} 
+          style={styles.backButton}
         >
-          <ArrowLeft className="w-6 h-6 text-white" />
-        </button>
-        <div className="text-center">
-          <h2 className="text-lg font-semibold text-red-400">Error</h2>
-          <p className="text-sm text-gray-400">Something went wrong</p>
-        </div>
-        <div className="w-10 h-10"></div> {/* Spacer for centering */}
-      </div>
+          <ArrowLeft size={24} color="white" />
+        </TouchableOpacity>
+        <View style={styles.headerCenter}>
+          <Text style={styles.headerTitle}>Error</Text>
+          <Text style={styles.headerSubtitle}>Something went wrong</Text>
+        </View>
+        <View style={styles.spacer} />
+      </View>
 
       {/* Error Content */}
-      <div className="flex-1 flex flex-col items-center justify-center p-6">
+      <View style={styles.content}>
         {/* Error Icon */}
-        <div className="relative mb-8">
-          <div className="w-32 h-32 bg-red-500/20 rounded-full flex items-center justify-center">
-            <AlertCircle className="w-16 h-16 text-red-400" />
-          </div>
+        <View style={styles.iconContainer}>
+          <View style={styles.iconBackground}>
+            <AlertCircle size={64} color="#F87171" />
+          </View>
           {/* Pulse animation */}
-          <div className="absolute inset-0 w-32 h-32 bg-red-500/10 rounded-full animate-ping"></div>
-        </div>
+          <Animated.View 
+            style={[
+              styles.pulseCircle,
+              { transform: [{ scale: pulseAnim }] }
+            ]} 
+          />
+        </View>
 
         {/* Error Title */}
-        <h3 className="text-2xl font-bold text-white mb-4 text-center">
+        <Text style={styles.errorTitle}>
           {getErrorTitle()}
-        </h3>
+        </Text>
 
         {/* Error Description */}
-        <p className="text-gray-300 text-center mb-2 max-w-md leading-relaxed">
+        <Text style={styles.errorDescription}>
           {getErrorDescription()}
-        </p>
+        </Text>
 
         {/* Error Code */}
         {errorCode && (
-          <p className="text-gray-500 text-sm mb-8">
+          <Text style={styles.errorCode}>
             Error Code: {errorCode}
-          </p>
+          </Text>
         )}
 
         {/* Retry Information */}
         {retryCount > 0 && (
-          <div className="bg-gray-800 px-4 py-2 rounded-lg mb-6">
-            <p className="text-yellow-400 text-sm text-center">
+          <View style={styles.retryInfo}>
+            <Text style={styles.retryText}>
               Attempt {retryCount} of {maxRetries}
-            </p>
-          </div>
+            </Text>
+          </View>
         )}
 
         {/* Action Buttons */}
-        <div className="flex flex-col space-y-4 w-full max-w-sm">
+        <View style={styles.buttonContainer}>
           {canRetry && !isMaxRetriesReached && (
-            <button
-              onClick={handleRetry}
-              className="flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-xl transition-colors"
+            <TouchableOpacity
+              onPress={handleRetry}
+              style={styles.retryButton}
             >
-              <RefreshCw className="w-5 h-5" />
-              <span>Try Again</span>
-            </button>
+              <RefreshCw size={20} color="white" />
+              <Text style={styles.buttonText}>Try Again</Text>
+            </TouchableOpacity>
           )}
 
-          <button
-            onClick={() => setCurrentScreen('welcome')}
-            className="flex items-center justify-center space-x-2 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-4 px-6 rounded-xl transition-colors"
+          <TouchableOpacity
+            onPress={() => setCurrentScreen('welcome')}
+            style={styles.homeButton}
           >
-            <Home className="w-5 h-5" />
-            <span>Start Over</span>
-          </button>
+            <Home size={20} color="white" />
+            <Text style={styles.buttonText}>Start Over</Text>
+          </TouchableOpacity>
 
           {isMaxRetriesReached && (
-            <div className="bg-red-900/30 border border-red-700 p-4 rounded-xl">
-              <p className="text-red-300 text-sm text-center">
+            <View style={styles.maxRetriesContainer}>
+              <Text style={styles.maxRetriesText}>
                 Maximum retry attempts reached. Please contact support if the problem persists.
-              </p>
-            </div>
+              </Text>
+            </View>
           )}
-        </div>
-      </div>
+        </View>
+      </View>
 
       {/* Support Information */}
-      <div className="bg-gray-800 p-4 mx-6 mb-6 rounded-xl">
-        <div className="text-center">
-          <p className="text-gray-300 text-sm mb-1">Need help?</p>
-          <p className="text-gray-400 text-xs">
-            Contact support at help@example.com
-          </p>
-        </div>
-      </div>
-    </div>
+      <View style={styles.supportContainer}>
+        <Text style={styles.supportTitle}>Need help?</Text>
+        <Text style={styles.supportEmail}>
+          Contact support at help@example.com
+        </Text>
+      </View>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#111827', // gray-900
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 24,
+    paddingTop: 56,
+    marginBottom: 20,
+  },
+  backButton: {
+    padding: 8,
+    borderRadius: 50,
+  },
+  headerCenter: {
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#F87171', // red-400
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: '#9CA3AF', // gray-400
+  },
+  spacer: {
+    width: 40,
+    height: 40,
+  },
+  content: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  iconContainer: {
+    position: 'relative',
+    marginBottom: 32,
+  },
+  iconBackground: {
+    width: 128,
+    height: 128,
+    backgroundColor: 'rgba(239, 68, 68, 0.2)', // red-500/20
+    borderRadius: 64,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pulseCircle: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: 128,
+    height: 128,
+    backgroundColor: 'rgba(239, 68, 68, 0.1)', // red-500/10
+    borderRadius: 64,
+  },
+  errorTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  errorDescription: {
+    color: '#D1D5DB', // gray-300
+    textAlign: 'center',
+    marginBottom: 8,
+    maxWidth: 300,
+    lineHeight: 22,
+  },
+  errorCode: {
+    color: '#6B7280', // gray-500
+    fontSize: 14,
+    marginBottom: 32,
+  },
+  retryInfo: {
+    backgroundColor: '#1F2937', // gray-800
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginBottom: 24,
+  },
+  retryText: {
+    color: '#FBBF24', // yellow-400
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  buttonContainer: {
+    width: '100%',
+    maxWidth: 300,
+  },
+  retryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#2563EB', // blue-600
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    marginBottom: 16,
+  },
+  homeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#374151', // gray-700
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    marginBottom: 16,
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: '600',
+    marginLeft: 8,
+    fontSize: 16,
+  },
+  maxRetriesContainer: {
+    backgroundColor: 'rgba(127, 29, 29, 0.3)', // red-900/30
+    borderWidth: 1,
+    borderColor: '#B91C1C', // red-700
+    padding: 16,
+    borderRadius: 12,
+  },
+  maxRetriesText: {
+    color: '#FCA5A5', // red-300
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  supportContainer: {
+    backgroundColor: '#1F2937', // gray-800
+    padding: 16,
+    marginHorizontal: 24,
+    marginBottom: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  supportTitle: {
+    color: '#D1D5DB', // gray-300
+    fontSize: 14,
+    marginBottom: 4,
+  },
+  supportEmail: {
+    color: '#9CA3AF', // gray-400
+    fontSize: 12,
+  },
+});
 
 export default ErrorScreen;
