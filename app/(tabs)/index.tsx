@@ -4,9 +4,7 @@ import { WelcomeScreen } from '@/components/screens';
 
 export default function HomeScreen() {
   return (
-      <WelcomeScreen isOnline={true} setCurrentScreen={function (screen: string): void {
-      throw new Error('Function not implemented.');
-    } } />
+      <WelcomeScreen />
      );
 }
 
