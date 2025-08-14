@@ -1,5 +1,6 @@
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react-native';
 import React from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface RetryCaptureScreenProps {
   faceDataQuality: number;
@@ -12,53 +13,137 @@ const RetryCaptureScreen: React.FC<RetryCaptureScreenProps> = ({
   retryFaceCapture, 
   setCurrentScreen 
 }) => (
-  <div className="flex flex-col h-screen bg-gradient-to-br from-orange-50 to-red-100 p-6">
-    <div className="flex-1 flex flex-col items-center justify-center text-center">
-      <div className="w-24 h-24 bg-orange-500 rounded-full flex items-center justify-center mb-8">
-        <AlertCircle className="w-12 h-12 text-white" />
-      </div>
-      
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Let's try that again</h2>
-      <p className="text-gray-600 mb-8">Face quality was {faceDataQuality}%. We need at least 85% for security.</p>
-      
-      <div className="bg-white rounded-2xl p-6 mb-8 max-w-sm">
-        <h4 className="font-semibold text-gray-800 mb-4">Tips for better capture:</h4>
-        <div className="space-y-3 text-sm text-gray-600 text-left">
-          <div className="flex items-center">
-            <div className="w-2 h-2 bg-orange-500 rounded-full mr-3"></div>
-            <span>Move to better lighting</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-2 h-2 bg-orange-500 rounded-full mr-3"></div>
-            <span>Clean camera lens</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-2 h-2 bg-orange-500 rounded-full mr-3"></div>
-            <span>Look directly at camera</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-2 h-2 bg-orange-500 rounded-full mr-3"></div>
-            <span>Keep head perfectly still</span>
-          </div>
-        </div>
-      </div>
+  <View style={styles.container}>
+    <View style={styles.content}>
+      <View style={styles.iconWrapper}>
+        <AlertCircle size={48} color="#fff" />
+      </View>
 
-      <div className="w-full space-y-3">
-        <button
-          onClick={retryFaceCapture}
-          className="w-full bg-orange-600 text-white py-4 rounded-2xl font-semibold text-lg shadow-lg active:bg-orange-700 transition-colors"
-        >
-          Try Again
-        </button>
-        <button
-          onClick={() => setCurrentScreen('personalInfo')}
-          className="w-full border-2 border-gray-300 text-gray-700 py-4 rounded-2xl font-semibold active:bg-gray-50 transition-colors"
-        >
-          Go Back
-        </button>
-      </div>
-    </div>
-  </div>
+      <Text style={styles.title}>Let's try that again</Text>
+      <Text style={styles.subtitle}>
+        Face quality was {faceDataQuality}%. We need at least 85% for security.
+      </Text>
+
+      <View style={styles.tipsCard}>
+        <Text style={styles.tipsTitle}>Tips for better capture:</Text>
+        <View style={styles.tipsList}>
+          {['Move to better lighting', 'Clean camera lens', 'Look directly at camera', 'Keep head perfectly still'].map((tip, index) => (
+            <View style={styles.tipRow} key={index}>
+              <View style={styles.tipDot} />
+              <Text style={styles.tipText}>{tip}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+
+      <View style={styles.actions}>
+        <TouchableOpacity onPress={retryFaceCapture} style={styles.primaryButton}>
+          <Text style={styles.primaryText}>Try Again</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setCurrentScreen('personalInfo')} style={styles.secondaryButton}>
+          <Text style={styles.secondaryText}>Go Back</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </View>
 );
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 24,
+    backgroundColor: '#FFEDD5', // light gradient base simulated
+  },
+  content: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconWrapper: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: '#F97316',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 32,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1F2937',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#4B5563',
+    marginBottom: 32,
+    textAlign: 'center',
+  },
+  tipsCard: {
+    width: '100%',
+    maxWidth: 360,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 24,
+    marginBottom: 32,
+  },
+  tipsTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1F2937',
+    marginBottom: 16,
+  },
+  tipsList: {
+    flexDirection: 'column',
+    gap: 12, // spacing between tips
+  },
+  tipRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  tipDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#F97316',
+    marginRight: 12,
+  },
+  tipText: {
+    fontSize: 14,
+    color: '#4B5563',
+  },
+  actions: {
+    width: '100%',
+    gap: 12,
+  },
+  primaryButton: {
+    width: '100%',
+    backgroundColor: '#EA580C',
+    paddingVertical: 16,
+    borderRadius: 16,
+    alignItems: 'center',
+  },
+  primaryText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  secondaryButton: {
+    width: '100%',
+    borderWidth: 2,
+    borderColor: '#D1D5DB',
+    paddingVertical: 16,
+    borderRadius: 16,
+    alignItems: 'center',
+  },
+  secondaryText: {
+    color: '#374151',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+});
 
 export default RetryCaptureScreen;

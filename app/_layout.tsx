@@ -1,19 +1,16 @@
-// app/_layout.tsx
-import { Stack } from 'expo-router';
-import React from 'react';
+import { Stack } from "expo-router";
 
 export default function RootLayout() {
   return (
-    <Stack>
-      <Stack.Screen 
-        name="(enrollment)" 
-        options={{ 
-          headerShown: false,
-          title: 'Customer Enrollment'
-        }} 
-      />
-      <Stack.Screen 
-        name="+not-found" 
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="personal-info" />
+      <Stack.Screen name="instructions" />
+      <Stack.Screen name="face-capture" />
+      <Stack.Screen name="retry-capture" />
+      <Stack.Screen name="review" />
+      <Stack.Screen name="success" />
+      <Stack.Screen name="+not-found" 
         options={{ 
           title: 'Oops!',
           presentation: 'modal'

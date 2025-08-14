@@ -1,5 +1,6 @@
-import { CheckCircle, User } from 'lucide-react';
-import React from 'react';
+import { CheckCircle, User } from "lucide-react-native"; // ← Use RN version
+import React from "react";
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface EnrolledCustomer {
   id: string;
@@ -21,111 +22,292 @@ interface SuccessScreenProps {
   resetEnrollment: () => void;
 }
 
-const SuccessScreen: React.FC<SuccessScreenProps> = ({ 
-  isOnline, 
-  enrolledCustomer, 
-  faceDataQuality, 
-  retryCount, 
-  resetEnrollment 
+const SuccessScreen: React.FC<SuccessScreenProps> = ({
+  isOnline,
+  enrolledCustomer,
+  faceDataQuality,
+  retryCount,
+  resetEnrollment,
 }) => (
-  <div className="flex flex-col h-screen bg-gradient-to-br from-green-50 to-emerald-100 p-6">
-    <div className="flex-1 flex flex-col items-center justify-center text-center">
+  <ScrollView contentContainerStyle={styles.container}>
+    <View style={styles.content}>
       {/* Success Animation */}
-      <div className="relative mb-8">
-        <div className="w-32 h-32 bg-green-500 rounded-full flex items-center justify-center animate-pulse">
-          <CheckCircle className="w-16 h-16 text-white" />
-        </div>
-        <div className="absolute -top-2 -right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-          <User className="w-4 h-4 text-white" />
-        </div>
-      </div>
-      
-      <h2 className="text-3xl font-bold text-gray-800 mb-4">Welcome to FacePay!</h2>
-      <p className="text-gray-600 mb-8 text-lg">
-        {isOnline ? 'Your account is active and ready to use' : 'Your enrollment is complete and will sync shortly'}
-      </p>
-      
+      <View style={styles.successContainer}>
+        <View style={styles.successCircle}>
+          <CheckCircle size={64} color="#fff" />
+        </View>
+        <View style={styles.userIconContainer}>
+          <User size={16} color="#fff" />
+        </View>
+      </View>
+
+      <Text style={styles.title}>Welcome to FacePay!</Text>
+      <Text style={styles.subtitle}>
+        {isOnline
+          ? "Your account is active and ready to use"
+          : "Your enrollment is complete and will sync shortly"}
+      </Text>
+
       {/* Customer Details Card */}
-      <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-lg mb-8">
-        <div className="space-y-4">
-          <div className="text-center pb-4 border-b">
-            <h3 className="font-bold text-gray-800 text-lg">{enrolledCustomer?.firstName} {enrolledCustomer?.lastName}</h3>
-            <p className="text-gray-600 text-sm">Customer ID: {enrolledCustomer?.id}</p>
-          </div>
-          
-          <div className="flex justify-between">
-            <span className="text-gray-600">Status</span>
-            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-              isOnline ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-            }`}>
-              {isOnline ? 'Active' : 'Pending Sync'}
-            </span>
-          </div>
-          
-          <div className="flex justify-between">
-            <span className="text-gray-600">Face Quality</span>
-            <span className="font-semibold text-gray-800">{faceDataQuality}%</span>
-          </div>
-          
-          <div className="flex justify-between">
-            <span className="text-gray-600">Enrolled</span>
-            <span className="text-gray-800">{new Date().toLocaleString()}</span>
-          </div>
-          
-          {retryCount > 0 && (
-            <div className="flex justify-between">
-              <span className="text-gray-600">Attempts</span>
-              <span className="text-gray-800">{retryCount + 1}</span>
-            </div>
-          )}
-        </div>
-      </div>
+      <View style={styles.card}>
+        <View style={styles.cardHeader}>
+          <Text style={styles.cardTitle}>
+            {enrolledCustomer?.firstName} {enrolledCustomer?.lastName}
+          </Text>
+          <Text style={styles.cardSub}>Customer ID: {enrolledCustomer?.id}</Text>
+        </View>
+
+        <View style={styles.cardRow}>
+          <Text style={styles.label}>Status</Text>
+          <View
+            style={[
+              styles.statusBadge,
+              isOnline ? styles.statusActive : styles.statusPending,
+            ]}
+          >
+            <Text
+              style={isOnline ? styles.statusActiveText : styles.statusPendingText}
+            >
+              {isOnline ? "Active" : "Pending Sync"}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.cardRow}>
+          <Text style={styles.label}>Face Quality</Text>
+          <Text style={styles.value}>{faceDataQuality}%</Text>
+        </View>
+
+        <View style={styles.cardRow}>
+          <Text style={styles.label}>Enrolled</Text>
+          <Text style={styles.value}>{new Date().toLocaleString()}</Text>
+        </View>
+
+        {retryCount > 0 && (
+          <View style={styles.cardRow}>
+            <Text style={styles.label}>Attempts</Text>
+            <Text style={styles.value}>{retryCount + 1}</Text>
+          </View>
+        )}
+      </View>
 
       {/* Next Steps */}
-      <div className="bg-blue-50 rounded-2xl p-6 w-full max-w-sm mb-8">
-        <h4 className="font-semibold text-gray-800 mb-3">What's Next?</h4>
-        <div className="space-y-2 text-sm text-gray-700">
-          <div className="flex items-center">
-            <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-            <span>Visit any FacePay merchant</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-            <span>Look at the camera to pay</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-            <span>Enjoy contactless payments</span>
-          </div>
-        </div>
-      </div>
+      <View style={styles.infoCard}>
+        <Text style={styles.infoTitle}>What's Next?</Text>
+        <View style={styles.infoItem}>
+          <View style={styles.bullet} />
+          <Text style={styles.infoText}>Visit any FacePay merchant</Text>
+        </View>
+        <View style={styles.infoItem}>
+          <View style={styles.bullet} />
+          <Text style={styles.infoText}>Look at the camera to pay</Text>
+        </View>
+        <View style={styles.infoItem}>
+          <View style={styles.bullet} />
+          <Text style={styles.infoText}>Enjoy contactless payments</Text>
+        </View>
+      </View>
 
       {/* Action Buttons */}
-      <div className="w-full space-y-3">
-        <button
-          onClick={resetEnrollment}
-          className="w-full bg-green-600 text-white py-4 rounded-2xl font-semibold text-lg shadow-lg active:bg-green-700 transition-colors"
-        >
-          Enroll Another Customer
-        </button>
-        
-        <button
-          onClick={() => {
-            // In a real app, this would navigate to the customer app or close the enrollment
-            alert('In a real app, this would open the FacePay customer app or provide next steps.');
-          }}
-          className="w-full border-2 border-green-600 text-green-600 py-4 rounded-2xl font-semibold active:bg-green-50 transition-colors"
-        >
-          Open FacePay App
-        </button>
-      </div>
+      <TouchableOpacity style={styles.primaryButton} onPress={resetEnrollment}>
+        <Text style={styles.primaryButtonText}>Enroll Another Customer</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.secondaryButton}
+        onPress={() =>
+          Alert.alert(
+            "FacePay App",
+            "In a real app, this would open the FacePay customer app or provide next steps."
+          )
+        }
+      >
+        <Text style={styles.secondaryButtonText}>Open FacePay App</Text>
+      </TouchableOpacity>
 
       {/* Support Link */}
-      <p className="text-center text-gray-500 text-sm mt-6">
-        Need help? <span className="text-green-600 underline">Contact Support</span>
-      </p>
-    </div>
-  </div>
+      <Text style={styles.supportText}>
+        Need help? <Text style={styles.supportLink}>Contact Support</Text>
+      </Text>
+    </View>
+  </ScrollView>
 );
+
+
+
+const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+    backgroundColor: "#ECFDF5",
+    padding: 24,
+  },
+  content: {
+    flex: 1,
+    alignItems: "center",
+  },
+  successContainer: {
+    marginBottom: 32,
+    position: "relative",
+  },
+  successCircle: {
+    width: 128,
+    height: 128,
+    backgroundColor: "#22C55E",
+    borderRadius: 64,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  userIconContainer: {
+    position: "absolute",
+    top: -8,
+    right: -8,
+    width: 32,
+    height: 32,
+    backgroundColor: "#3B82F6",
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#1F2937",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#4B5563",
+    marginBottom: 32,
+    textAlign: "center",
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 24,
+    width: "100%",
+    maxWidth: 350,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+    marginBottom: 32,
+  },
+  cardHeader: {
+    alignItems: "center",
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E7EB",
+  },
+  cardTitle: {
+    fontWeight: "bold",
+    fontSize: 18,
+    color: "#1F2937",
+  },
+  cardSub: {
+    fontSize: 14,
+    color: "#6B7280",
+  },
+  cardRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 8,
+  },
+  label: {
+    color: "#6B7280",
+  },
+  value: {
+    color: "#1F2937",
+    fontWeight: "600",
+  },
+  statusBadge: {
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
+  statusActive: {
+    backgroundColor: "#D1FAE5",
+  },
+  statusPending: {
+    backgroundColor: "#FEF9C3",
+  },
+  statusActiveText: {
+    color: "#15803D",
+    fontSize: 12,
+    fontWeight: "500",
+  },
+  statusPendingText: {
+    color: "#854D0E",
+    fontSize: 12,
+    fontWeight: "500",
+  },
+  infoCard: {
+    backgroundColor: "#EFF6FF",
+    borderRadius: 16,
+    padding: 24,
+    width: "100%",
+    maxWidth: 350,
+    marginBottom: 32,
+  },
+  infoTitle: {
+    fontWeight: "600",
+    color: "#1F2937",
+    marginBottom: 12,
+  },
+  infoItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  bullet: {
+    width: 8,
+    height: 8,
+    backgroundColor: "#3B82F6",
+    borderRadius: 4,
+    marginRight: 12,
+  },
+  infoText: {
+    fontSize: 14,
+    color: "#374151",
+  },
+  primaryButton: {
+    backgroundColor: "#16A34A",
+    paddingVertical: 16,
+    borderRadius: 16,
+    width: "100%",
+    maxWidth: 350,
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  primaryButtonText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 16,
+  },
+  secondaryButton: {
+    borderWidth: 2,
+    borderColor: "#16A34A",
+    paddingVertical: 16,
+    borderRadius: 16,
+    width: "100%",
+    maxWidth: 350,
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  secondaryButtonText: {
+    color: "#16A34A",
+    fontWeight: "600",
+    fontSize: 16,
+  },
+  supportText: {
+    textAlign: "center",
+    fontSize: 14,
+    color: "#6B7280",
+  },
+  supportLink: {
+    color: "#16A34A",
+    textDecorationLine: "underline",
+  },
+});
 
 export default SuccessScreen;

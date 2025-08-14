@@ -1,12 +1,13 @@
-import { ArrowLeft, CheckCircle, Shield } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Shield } from 'lucide-react-native';
 import React from 'react';
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface CustomerData {
   firstName: string;
   lastName: string;
   phone: string;
-  email: string;
-  dateOfBirth: string;
+  email?: string;
+  dateOfBirth?: string;
   acceptTerms: boolean;
   marketing: boolean;
 }
@@ -14,137 +15,366 @@ interface CustomerData {
 interface ReviewScreenProps {
   setCurrentScreen: (screen: string) => void;
   faceDataQuality: number;
-  customerData: CustomerData;
+  customerData?: CustomerData; // now optional
   isOnline: boolean;
   completeEnrollment: () => void;
 }
 
-const ReviewScreen: React.FC<ReviewScreenProps> = ({ 
-  setCurrentScreen, 
-  faceDataQuality, 
-  customerData, 
-  isOnline, 
-  completeEnrollment 
-}) => (
-  <div className="flex flex-col h-screen bg-white p-6">
-    <div className="flex items-center justify-between mt-8 mb-8">
-      <button 
-        onClick={() => setCurrentScreen('faceCapture')} 
-        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-      >
-        <ArrowLeft className="w-6 h-6 text-gray-600" />
-      </button>
-      <div className="text-center">
-        <h2 className="text-xl font-semibold text-gray-800">Review & Confirm</h2>
-        <p className="text-sm text-gray-500">Step 3 of 3</p>
-      </div>
-      <div className="w-6" />
-    </div>
+const ReviewScreen: React.FC<ReviewScreenProps> = ({
+  setCurrentScreen,
+  faceDataQuality,
+  customerData,
+  isOnline,
+  completeEnrollment
+}) => {
 
-    {/* Progress Bar */}
-    <div className="w-full bg-gray-200 rounded-full h-2 mb-8">
-      <div className="bg-green-600 h-2 rounded-full transition-all duration-300" style={{ width: '100%' }} />
-    </div>
+  
 
-    <div className="flex-1">
-      {/* Face Capture Success */}
-      <div className="bg-green-50 rounded-2xl p-6 mb-6 text-center">
-        <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-          <CheckCircle className="w-8 h-8 text-white" />
-        </div>
-        <h3 className="text-xl font-bold text-gray-800 mb-2">Face Captured Successfully</h3>
-        <p className="text-gray-600 mb-4">Quality: {faceDataQuality}% - Excellent!</p>
-        
-        {/* Quality Metrics */}
-        <div className="grid grid-cols-3 gap-3 text-sm">
-          <div className="bg-white rounded-lg p-3">
-            <p className="font-semibold text-gray-800">Clarity</p>
-            <p className="text-green-600">Excellent</p>
-          </div>
-          <div className="bg-white rounded-lg p-3">
-            <p className="font-semibold text-gray-800">Lighting</p>
-            <p className="text-green-600">Good</p>
-          </div>
-          <div className="bg-white rounded-lg p-3">
-            <p className="font-semibold text-gray-800">Position</p>
-            <p className="text-green-600">Perfect</p>
-          </div>
-        </div>
-      </div>
+  // Show loading if data not available
+  if (!customerData) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#16A34A" />
+        <Text style={{ marginTop: 12, color: '#4B5563' }}>Loading your information...</Text>
+      </View>
+    );
+  }
 
-      {/* Customer Information Review */}
-      <div className="bg-gray-50 rounded-2xl p-6 mb-6">
-        <h4 className="font-semibold text-gray-800 mb-4">Your Information</h4>
-        <div className="space-y-3">
-          <div className="flex justify-between items-center py-2">
-            <span className="text-gray-600">Phone</span>
-            <span className="font-mono text-gray-800">{customerData.phone}</span>
-          </div>
-          {customerData.email && (
-            <div className="flex justify-between items-center py-2">
-              <span className="text-gray-600">Email</span>
-              <span className="text-gray-800">{customerData.email}</span>
-            </div>
-          )}
-          {customerData.dateOfBirth && (
-            <div className="flex justify-between items-center py-2">
-              <span className="text-gray-600">Date of Birth</span>
-              <span className="text-gray-800">{new Date(customerData.dateOfBirth).toLocaleDateString()}</span>
-            </div>
-          )}
-          <div className="flex justify-between items-center py-2">
-            <span className="text-gray-600">Marketing Emails</span>
-            <span className="text-gray-800">{customerData.marketing ? 'Yes' : 'No'}</span>
-          </div>
-        </div>
-      </div>
+  return (
+    <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => setCurrentScreen('faceCapture')}
+          style={styles.backButton}
+        >
+          <ArrowLeft size={24} color="#4B5563" />
+        </TouchableOpacity>
+        <View style={styles.headerText}>
+          <Text style={styles.title}>Review & Confirm</Text>
+          <Text style={styles.step}>Step 3 of 3</Text>
+        </View>
+        <View style={{ width: 24 }} />
+      </View>
 
-      {/* Status Information */}
-      <div className="bg-blue-50 rounded-2xl p-4 mb-6">
-        <div className="flex items-center">
-          <div className={`w-3 h-3 rounded-full mr-3 ${isOnline ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
-          <div className="flex-1">
-            <p className="font-semibold text-gray-800">
-              {isOnline ? 'Account will be activated immediately' : 'Account will be activated when online'}
-            </p>
-            <p className="text-sm text-gray-600">
-              {isOnline ? 'You can start using FacePay right away' : 'Data will sync automatically when connected'}
-            </p>
-          </div>
-        </div>
-      </div>
+      {/* Progress Bar */}
+      <View style={styles.progressBar}>
+        <View style={styles.progressFill} />
+      </View>
 
-      {/* Privacy Notice */}
-      <div className="bg-gray-100 rounded-xl p-4 mb-6">
-        <div className="flex items-start">
-          <Shield className="w-5 h-5 text-gray-600 mr-3 mt-0.5" />
-          <div>
-            <p className="text-sm text-gray-700">
-              <span className="font-semibold">Privacy Protected:</span> Your facial data is encrypted with military-grade security. 
-              We never store actual images, only mathematical representations that cannot be reverse-engineered.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+      <View style={{ flex: 1 }}>
+        {/* Face Capture Success */}
+        <View style={styles.successCard}>
+          <View style={styles.successIcon}>
+            <CheckCircle size={32} color="#fff" />
+          </View>
+          <Text style={styles.successTitle}>Face Captured Successfully</Text>
+          <Text style={styles.successSubtitle}>
+            Quality: {faceDataQuality ?? 0}% - Excellent!
+          </Text>
 
-    {/* Action Buttons */}
-    <div className="space-y-3">
-      <button
-        onClick={completeEnrollment}
-        className="w-full bg-green-600 text-white py-4 rounded-2xl font-semibold text-lg shadow-lg active:bg-green-700 transition-colors"
-      >
-        Complete Enrollment
-      </button>
-      
-      <button
-        onClick={() => setCurrentScreen('personalInfo')}
-        className="w-full border-2 border-gray-300 text-gray-700 py-3 rounded-2xl font-semibold active:bg-gray-50 transition-colors"
-      >
-        Edit Information
-      </button>
-    </div>
-  </div>
-);
+          <View style={styles.metricsGrid}>
+            <View style={styles.metricBox}>
+              <Text style={styles.metricLabel}>Clarity</Text>
+              <Text style={styles.metricValue}>Excellent</Text>
+            </View>
+            <View style={styles.metricBox}>
+              <Text style={styles.metricLabel}>Lighting</Text>
+              <Text style={styles.metricValue}>Good</Text>
+            </View>
+            <View style={styles.metricBox}>
+              <Text style={styles.metricLabel}>Position</Text>
+              <Text style={styles.metricValue}>Perfect</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Customer Info */}
+        <View style={styles.infoCard}>
+          <Text style={styles.infoTitle}>Your Information</Text>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Phone</Text>
+            <Text style={styles.infoValue}>{customerData.phone || 'N/A'}</Text>
+          </View>
+          {customerData.email ? (
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Email</Text>
+              <Text style={styles.infoValue}>{customerData.email}</Text>
+            </View>
+          ) : null}
+          {customerData.dateOfBirth ? (
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Date of Birth</Text>
+              <Text style={styles.infoValue}>
+                {new Date(customerData.dateOfBirth).toLocaleDateString()}
+              </Text>
+            </View>
+          ) : null}
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Marketing Emails</Text>
+            <Text style={styles.infoValue}>{customerData.marketing ? 'Yes' : 'No'}</Text>
+          </View>
+        </View>
+
+        {/* Status */}
+        <View style={styles.statusCard}>
+          <View style={styles.statusRow}>
+            <View
+              style={[
+                styles.statusDot,
+                { backgroundColor: isOnline ? '#22C55E' : '#EAB308' }
+              ]}
+            />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.statusTitle}>
+                {isOnline
+                  ? 'Account will be activated immediately'
+                  : 'Account will be activated when online'}
+              </Text>
+              <Text style={styles.statusText}>
+                {isOnline
+                  ? 'You can start using FacePay right away'
+                  : 'Data will sync automatically when connected'}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Privacy */}
+        <View style={styles.privacyCard}>
+          <Shield size={20} color="#4B5563" style={{ marginRight: 8, marginTop: 2 }} />
+          <Text style={styles.privacyText}>
+            <Text style={{ fontWeight: '600' }}>Privacy Protected:</Text> Your facial data is
+            encrypted with military-grade security. We never store actual images, only mathematical
+            representations that cannot be reverse-engineered.
+          </Text>
+        </View>
+      </View>
+
+      {/* Actions */}
+      <View style={styles.actions}>
+        <TouchableOpacity onPress={completeEnrollment} style={styles.primaryButton}>
+          <Text style={styles.primaryText}>Complete Enrollment</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setCurrentScreen('personalInfo')}
+          style={styles.secondaryButton}
+        >
+          <Text style={styles.secondaryText}>Edit Information</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    padding: 24,
+  },
+
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 32,
+    marginBottom: 32,
+  },
+
+  backButton: {
+    padding: 8,
+    borderRadius: 9999,
+    backgroundColor: '#F3F4F6',
+  },
+
+  headerText: {
+    alignItems: 'center',
+  },
+
+  title: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#1F2937',
+  },
+
+  step: {
+    fontSize: 12,
+    color: '#6B7280',
+  },
+
+  progressBar: {
+    width: '100%',
+    height: 8,
+    backgroundColor: '#E5E7EB',
+    borderRadius: 9999,
+    marginBottom: 32,
+  },
+
+  progressFill: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#16A34A',
+    borderRadius: 9999,
+  },
+
+  successCard: {
+    backgroundColor: '#ECFDF5',
+    borderRadius: 16,
+    padding: 24,
+    marginBottom: 24,
+    alignItems: 'center',
+  },
+
+  successIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#22C55E',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+
+  successTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1F2937',
+    marginBottom: 4,
+  },
+
+  successSubtitle: {
+    color: '#4B5563',
+    marginBottom: 16,
+  },
+
+  metricsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+
+  metricBox: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 12,
+    marginHorizontal: 4,
+    alignItems: 'center',
+  },
+
+  metricLabel: {
+    fontWeight: '600',
+    color: '#1F2937',
+  },
+
+  metricValue: {
+    color: '#16A34A',
+  },
+
+  infoCard: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: 16,
+    padding: 24,
+    marginBottom: 24,
+  },
+
+  infoTitle: {
+    fontWeight: '600',
+    color: '#1F2937',
+    marginBottom: 12,
+  },
+
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 4,
+  },
+
+  infoLabel: {
+    color: '#6B7280',
+  },
+
+  infoValue: {
+    color: '#1F2937',
+    fontFamily: 'monospace',
+  },
+
+  statusCard: {
+    backgroundColor: '#EFF6FF',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 24,
+  },
+
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  statusDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 12,
+  },
+
+  statusTitle: {
+    fontWeight: '600',
+    color: '#1F2937',
+  },
+
+  statusText: {
+    fontSize: 12,
+    color: '#4B5563',
+  },
+
+  privacyCard: {
+    backgroundColor: '#F3F4F6',
+    borderRadius: 12,
+    padding: 16,
+    flexDirection: 'row',
+    marginBottom: 24,
+  },
+
+  privacyText: {
+    fontSize: 12,
+    color: '#374151',
+    flex: 1,
+  },
+
+  actions: {
+    marginTop: 16,
+    marginBottom: 24,
+  },
+
+  primaryButton: {
+    backgroundColor: '#16A34A',
+    paddingVertical: 16,
+    borderRadius: 16,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+
+  primaryText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+
+  secondaryButton: {
+    borderWidth: 2,
+    borderColor: '#D1D5DB',
+    paddingVertical: 12,
+    borderRadius: 16,
+    alignItems: 'center',
+  },
+
+  secondaryText: {
+    color: '#374151',
+    fontWeight: '600',
+  },
+});
 
 export default ReviewScreen;
